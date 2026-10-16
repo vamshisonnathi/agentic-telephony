@@ -41,5 +41,5 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/sandhyarajyalaxmi-pixel/agentic-telephony"
-"Bug Tracker" = "https://github.com/sandhyarajyalaxmi-pixel/agentic-telephony/issues"
+"Homepage" = "https://github.com/vamshisonnathi/agentic-telephony"
+"Bug Tracker" = "https://github.com/vamshisonnathi/agentic-telephony/issues"

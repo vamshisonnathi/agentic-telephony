@@ -64,7 +64,7 @@ flowchart TD
 ### 1. Installation
 
 ```bash
-git clone https://github.com/sandhyarajyalaxmi-pixel/agentic-telephony.git
+git clone https://github.com/vamshisonnathi/agentic-telephony.git
 cd agentic-telephony
 pip install -r requirements.txt
 ```
