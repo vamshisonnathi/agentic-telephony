@@ -1,31 +1,32 @@
-# 📞 Agentic Telephony
+# Agentic Telephony
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Telephony: Vapi & Retell AI](https://img.shields.io/badge/Telephony-Vapi%20%7C%20Retell%20AI-blueviolet.svg)](https://vapi.ai)
-[![Framework: CrewAI & LangChain](https://img.shields.io/badge/Framework-CrewAI%20%7C%20LangChain-green.svg)](https://crewai.com)
 
-**Autonomous Human-Like AI Phone Calling & Receiving Agent Framework** powered by **Vapi AI** and **Retell AI**, featuring the **4-Pillar Human Transaction Protocol (AHTP)**.
+A Python framework for autonomous phone calling and receiving with Vapi and Retell AI.
 
-Unlike typical robotic IVR bots or raw API wrappers, **Agentic Telephony** handles the messy, real-world conversational dynamics of real phone calls: conversational recovery after interruptions, strict pronoun fidelity, micro-math total validations, and complete logistical transaction closures.
+Most voice agent demos fail the moment they hit an actual phone line. A recipient interrupts with "who is this?", the agent reboots its 20-word pitch from the beginning, repeats full item descriptions on every turn instead of using pronouns, and hangs up the second someone says "yes" without confirming an address or asking for a text confirmation.
 
----
-
-## 🌟 Key Features
-
-- **🔄 Dual-Engine Provider Architecture**: Seamlessly switch between **Vapi AI** and **Retell AI** via a single environment variable (`TELEPHONY_PROVIDER=vapi` or `TELEPHONY_PROVIDER=retell`).
-- **🎙️ The 4-Pillar Human Transaction Protocol (AHTP)**:
-  1. **Casual Opening & Interruption Recovery**: Opens with a natural *"Hi."* and never reboots into a 15-word script when interrupted.
-  2. **Strict Pronoun Rule & Brevity**: Limits turns to 10–14 words, using pronouns (*"them"*, *"those"*, *"that"*) instead of repetitive descriptions.
-  3. **Micro-Math & Reality Check**: Confirms pricing aloud (*"Cool, so about 30 bucks total"*) and verifies practical constraints (pickup hours, item holds, prep time).
-  4. **360° Transaction Closure**: Directs SMS text confirmations to the Caller ID and validates logistical details before hanging up.
-- **📥 Inbound Call Receiving & Webhooks**: Production-ready FastAPI/Starlette webhook receiver for live call events, conversation updates, and post-call AI summaries.
-- **⚡ Live Transcript WebSocket Streaming**: Stream real-time turn-by-turn spoken audio transcripts directly to frontend dashboards or terminal HUDs.
-- **🤖 Autonomous Multi-Agent Tooling**: Drop-in compatible tools for **CrewAI**, **LangChain**, and **LangGraph** (`PlaceOutboundCallTool`, `CheckCallStatusTool`, `EndCallTool`).
+Agentic Telephony wraps voice telephony providers with conversation protocols designed for real phone interactions: recovery from interruptions, pronoun tracking, quick price sanity checks, and logistical closure.
 
 ---
 
-## 🏗️ Architecture
+## Core design
+
+- Pluggable provider architecture with unified interfaces for Vapi and Retell AI (`TELEPHONY_PROVIDER=vapi` or `retell`).
+- The 4-Pillar Transaction Protocol:
+  - Interruption recovery: opens with a concise greeting and recovers cleanly if interrupted, without restarting the initial pitch.
+  - Pronoun fidelity: keeps conversational turns under 15 words and refers back to items using natural pronouns ("them", "those", "that") rather than repeating verbose product titles.
+  - Micro-math and sanity checks: calculates running totals aloud ("sounds good, so roughly $30 total") and checks physical constraints like pickup windows and holds.
+  - Logistical closure: requests text confirmations to the caller ID and validates location details before concluding the call.
+- Thread-safe call state tracker storing live utterances, timestamps, call status, and post-call summaries.
+- Webhook receiver (FastAPI with Starlette fallback) handling provider lifecycle callbacks, status updates, and speech events.
+- WebSocket endpoint streaming real-time speech events and utterances to external dashboards or terminal clients.
+- Pre-built tool definitions compatible with CrewAI, LangChain, and LangGraph.
+
+---
+
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -59,7 +60,7 @@ flowchart TD
 
 ---
 
-## 🚀 Quickstart (60 Seconds)
+## Getting started
 
 ### 1. Installation
 
@@ -69,7 +70,7 @@ cd agentic-telephony
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
+### 2. Configure environment
 
 Copy `.env.example` to `.env` and configure your API key:
 
@@ -85,13 +86,13 @@ TELEPHONY_PROVIDER=vapi
 VAPI_API_KEY=your_vapi_api_key_here
 VAPI_PHONE_NUMBER_ID=your_vapi_phone_number_id_here
 
-# Persona Defaults
+# Caller defaults
 CALLER_NAME=Alex
 CALLER_PHONE=+15551234567
 DEFAULT_LOCATION=Dallas, TX
 ```
 
-### 3. Place Your First Outbound Call
+### 3. Place an outbound call
 
 ```python
 from agentic_telephony import telephony_engine
@@ -109,7 +110,7 @@ print(f"Call dispatched! ID: {call['call_id']}")
 
 ---
 
-## 📥 Inbound Call Receiving & Webhook Server
+## Webhook server
 
 To receive live speech transcripts and post-call reports, launch the webhook server:
 
@@ -117,39 +118,41 @@ To receive live speech transcripts and post-call reports, launch the webhook ser
 python examples/02_inbound_receiving_server.py
 ```
 
-Expose your local port (`8000`) to the internet using Cloudflare Tunnel or Ngrok:
+Expose port 8000 using a tunnel (such as Cloudflare Tunnel or ngrok):
+
 ```bash
 cloudflared tunnel --url http://localhost:8000
 # or: ngrok http 8000
 ```
-Set the generated URL in your Vapi or Retell dashboard as your Webhook URL:
-- **Vapi**: `https://your-domain.trycloudflare.com/webhook/vapi`
-- **Retell**: `https://your-domain.trycloudflare.com/webhook/retell`
 
-### Available Endpoints
+Set the public URL in your Vapi or Retell dashboard as your Webhook URL:
+- Vapi: `https://your-domain.trycloudflare.com/webhook/vapi`
+- Retell: `https://your-domain.trycloudflare.com/webhook/retell`
+
+### Endpoints
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
-| `/webhook/vapi` | `POST` | Ingestion endpoint for Vapi speech transcripts & call reports |
+| `/webhook/vapi` | `POST` | Ingestion endpoint for Vapi speech transcripts and call reports |
 | `/webhook/retell` | `POST` | Ingestion endpoint for Retell AI call lifecycle events |
 | `/api/calls/dispatch` | `POST` | REST API to trigger an autonomous outbound call |
-| `/api/calls/active` | `GET` | List all currently active / ringing calls |
+| `/api/calls/active` | `GET` | List all currently active or ringing calls |
 | `/api/calls/{call_id}` | `GET` | Fetch real-time transcript and post-call AI summary |
-| `/api/calls/{call_id}/end` | `POST` | Immediately hang up an active call |
+| `/api/calls/{call_id}/end` | `POST` | Hang up an active call |
 | `/ws/calls/{call_id}` | `WebSocket` | Real-time WebSocket stream for turn-by-turn utterances |
 
 ---
 
-## 🤖 Multi-Agent Integration (CrewAI & LangChain)
+## Multi-agent integration
 
-Equip your autonomous agents with real telephony tools:
+Pre-built tools (`PlaceOutboundCallTool`, `CheckCallStatusTool`, `EndCallTool`) can be passed directly to CrewAI agents, LangChain tool callers, or LangGraph graphs:
 
 ```python
-from crewai import Agent, Task, Crew
+from crewai import Agent
 from agentic_telephony import (
     PlaceOutboundCallTool,
     CheckCallStatusTool,
-    EndCallTool
+    EndCallTool,
 )
 
 phone_agent = Agent(
@@ -157,15 +160,22 @@ phone_agent = Agent(
     goal="Dial local businesses, inquire about availability, and verify logistics.",
     backstory="You are an articulate, courteous phone operator making natural calls.",
     tools=[PlaceOutboundCallTool(), CheckCallStatusTool(), EndCallTool()],
-    verbose=True
+    verbose=True,
 )
 ```
 
 ---
 
-## 🧪 Running Unit Tests
+## Known limitations
 
-Verify everything runs cleanly:
+- Hold silence timeout: When placed on hold in total silence for longer than 25 to 30 seconds, carrier silence detection or provider timeouts can trigger an accidental hangup or an unprompted retry prompt. Handling silent holds reliably without background hold music detection remains an open challenge.
+- Live operator handoff: There is currently no mid-call SIP transfer bridge or warm handoff mechanism to transfer an in-progress call to a human operator when negotiation fails or human intervention is required.
+
+---
+
+## Testing
+
+Run the test suite:
 
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
@@ -173,6 +183,6 @@ python -m unittest discover -s tests -p "test_*.py"
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).

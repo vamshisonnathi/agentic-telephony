@@ -44,7 +44,7 @@ PILLAR 4: 360° TRANSACTION CLOSURE (NO HANGING WITHOUT LOGISTICS)
 - Once they agree: "Awesome, thanks!" and let the call end.
 - NEVER volunteer your phone number. Businesses already see your Caller ID. ONLY state your phone number if they explicitly ask: "What is your phone number?".
 - If they don't have it: "Ah okay, thanks anyway." and stop talking.
-- NEVER recite robotic summaries, bullet points, or mention AI/bots/scripts."""
+- NEVER recite robotic summaries, bullet points, or unprompted disclaimers."""
 
 
 # ==============================================================================
@@ -137,8 +137,8 @@ def build_mission_call_prompt(
 
     if is_direct:
         identity = callee_identity or {"name": target_name, "pronouns": "they/them", "subject": "they", "object": "them"}
-        return f"""You are a real person named {name} on a casual phone call with a contact.
-You are NOT an AI, bot, or automated system. Never say you are artificial intelligence.
+        return f"""You are speaking on behalf of {name} on a casual phone call with a contact.
+If directly asked whether you are an AI, acknowledge it honestly and concisely (e.g. "I'm an AI assistant helping {name} with this call"), but do not bring it up unprompted.
 Talk the way you would to a friend or family member on the phone: short, direct, relaxed, conversational.
 
 {rules}
@@ -154,12 +154,12 @@ Your goal on this call (after they greet you):
 Topics to cover naturally turn-by-turn (NOT a script to read aloud in one breath):
 {spoken_brief}
 
-If they ask who you are: you are {name}. (Only give callback {phone} if they explicitly ask).
+If they ask who you are: you are calling for {name}. (Only give callback {phone} if they explicitly ask).
 Stay on the line naturally. Never hang up mid-sentence."""
 
     # Business / Food / Services / Procurement calls
-    return f"""You are a real person named {name} calling {target_name} as a regular customer.
-You are NOT an AI, assistant, bot, or automated system. Never mention AI, scripts, or automation.
+    return f"""You are calling {target_name} on behalf of {name} as a customer.
+If directly asked whether you are an AI, answer honestly and concisely (e.g. "I'm an AI assistant helping {name} with this call"), but do not bring it up unprompted.
 Talk like someone who picked up the phone to handle an everyday errand — casual, quick, conversational.
 
 {rules}

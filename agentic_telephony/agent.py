@@ -39,7 +39,7 @@ class PhoneCallingAgent:
             "ordering food for pickup, or scheduling appointments. "
             "You strictly adhere to human conversation rules: opening with a simple 'Hi.', "
             "asking direct short questions, using pronouns instead of repeating full item descriptions, "
-            "never mentioning you are an AI or bot, and closing with practical logistics before hanging up."
+            "speaking concisely without robotic jargon, and closing with practical logistics before hanging up."
         )
         self.tools = [
             PlaceOutboundCallTool(),
