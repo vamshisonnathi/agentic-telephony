@@ -1,17 +1,26 @@
 """
-Unit Tests for Telephony FastAPI Webhook Server.
+Unit Tests for Telephony FastAPI Webhook Server & Authentication.
 """
 
 import unittest
 from starlette.testclient import TestClient
+from agentic_telephony.config import settings
 from agentic_telephony.server.app import create_app
 from agentic_telephony.tracker import call_tracker
 
 
 class TestServerWebhooks(unittest.TestCase):
     def setUp(self):
+        self._orig_api_secret = settings.API_SECRET_KEY
+        self._orig_webhook_secret = settings.WEBHOOK_SECRET
+        settings.API_SECRET_KEY = None
+        settings.WEBHOOK_SECRET = None
         self.app = create_app()
         self.client = TestClient(self.app)
+
+    def tearDown(self):
+        settings.API_SECRET_KEY = self._orig_api_secret
+        settings.WEBHOOK_SECRET = self._orig_webhook_secret
 
     def test_vapi_transcript_webhook(self):
         call_id = "vapi_webhook_test_1"
@@ -78,6 +87,51 @@ class TestServerWebhooks(unittest.TestCase):
         data = res.json()
         self.assertIn("active_calls", data)
         self.assertIn("count", data)
+
+    def test_api_auth_protection(self):
+        settings.API_SECRET_KEY = "super_secret_token_xyz"
+        try:
+            # 1. Unauthenticated request should be rejected with 401
+            unauth_res = self.client.get("/api/calls/active")
+            self.assertEqual(unauth_res.status_code, 401)
+
+            # 2. Invalid API key should be rejected with 401
+            bad_key_res = self.client.get("/api/calls/active", headers={"x-api-key": "wrong_key"})
+            self.assertEqual(bad_key_res.status_code, 401)
+
+            # 3. Valid X-API-Key header should succeed with 200
+            valid_x_key_res = self.client.get("/api/calls/active", headers={"x-api-key": "super_secret_token_xyz"})
+            self.assertEqual(valid_x_key_res.status_code, 200)
+
+            # 4. Valid Authorization Bearer header should succeed with 200
+            valid_bearer_res = self.client.get("/api/calls/active", headers={"Authorization": "Bearer super_secret_token_xyz"})
+            self.assertEqual(valid_bearer_res.status_code, 200)
+        finally:
+            settings.API_SECRET_KEY = None
+
+    def test_webhook_auth_protection(self):
+        settings.WEBHOOK_SECRET = "wh_secret_abc123"
+        try:
+            payload = {"message": {"type": "transcript", "call": {"id": "auth_test_1"}}}
+
+            # 1. Unauthenticated webhook rejected with 401
+            unauth = self.client.post("/webhook/vapi", json=payload)
+            self.assertEqual(unauth.status_code, 401)
+
+            # 2. Invalid secret rejected with 401
+            bad_sec = self.client.post("/webhook/vapi", json=payload, headers={"x-vapi-secret": "wrong"})
+            self.assertEqual(bad_sec.status_code, 401)
+
+            # 3. Valid Vapi secret header succeeds
+            valid = self.client.post("/webhook/vapi", json=payload, headers={"x-vapi-secret": "wh_secret_abc123"})
+            self.assertEqual(valid.status_code, 200)
+
+            # 4. Valid Retell secret header succeeds
+            retell_payload = {"event": "call_started", "call": {"call_id": "auth_test_2"}}
+            valid_retell = self.client.post("/webhook/retell", json=retell_payload, headers={"x-retell-secret": "wh_secret_abc123"})
+            self.assertEqual(valid_retell.status_code, 200)
+        finally:
+            settings.WEBHOOK_SECRET = None
 
 
 if __name__ == "__main__":

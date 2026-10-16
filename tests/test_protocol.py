@@ -60,6 +60,29 @@ class TestProtocolAndIdentity(unittest.TestCase):
         self.assertIn("Jordan", prompt)
         self.assertIn("she/her", prompt)
 
+    def test_prompt_ai_and_recording_disclosure(self):
+        prompt = build_mission_call_prompt(
+            target_name="City Cafe",
+            objective="Reserve a table for 4",
+            spoken_brief="Ask for table at 7pm",
+            caller_name="Sam",
+            disclose_recording=True,
+        )
+        self.assertIn("Never claim to be a human", prompt)
+        self.assertIn("Quick heads up, this call is recorded", prompt)
+        self.assertIn("AI assistant calling on behalf of Sam", prompt)
+
+    def test_prompt_without_recording_disclosure(self):
+        prompt = build_mission_call_prompt(
+            target_name="City Cafe",
+            objective="Reserve a table for 4",
+            spoken_brief="Ask for table at 7pm",
+            caller_name="Sam",
+            disclose_recording=False,
+        )
+        self.assertIn("Never claim to be a human", prompt)
+        self.assertNotIn("Quick heads up, this call is recorded", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

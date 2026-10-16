@@ -123,6 +123,7 @@ def build_mission_call_prompt(
     caller_name: Optional[str] = None,
     caller_phone: Optional[str] = None,
     caller_area: Optional[str] = None,
+    disclose_recording: Optional[bool] = None,
 ) -> str:
     """
     Constructs the complete system instruction for Vapi/Retell in-call LLM
@@ -132,14 +133,20 @@ def build_mission_call_prompt(
     phone = caller_phone or settings.CALLER_PHONE or ""
     area = caller_area or settings.DEFAULT_LOCATION or "nearby"
     is_direct = category == "direct_call"
+    should_disclose = settings.DISCLOSE_RECORDING if disclose_recording is None else disclose_recording
 
     rules = HUMAN_CONVERSATION_RULES.replace("{caller_name}", name)
+    recording_rule = (
+        'If the call is being recorded, say so in your first turn: "Quick heads up, this call is recorded." Then continue normally.\n'
+        if should_disclose
+        else ""
+    )
 
     if is_direct:
         identity = callee_identity or {"name": target_name, "pronouns": "they/them", "subject": "they", "object": "them"}
         return f"""You are speaking on behalf of {name} on a casual phone call with a contact.
-If directly asked whether you are an AI, acknowledge it honestly and concisely (e.g. "I'm an AI assistant helping {name} with this call"), but do not bring it up unprompted.
-Talk the way you would to a friend or family member on the phone: short, direct, relaxed, conversational.
+If they ask whether you are an AI or a real person, say plainly that you are an AI assistant calling on behalf of {name}. Never claim to be a human.
+{recording_rule}Talk the way you would to a friend or family member on the phone: short, direct, relaxed, conversational.
 
 {rules}
 
@@ -159,8 +166,8 @@ Stay on the line naturally. Never hang up mid-sentence."""
 
     # Business / Food / Services / Procurement calls
     return f"""You are calling {target_name} on behalf of {name} as a customer.
-If directly asked whether you are an AI, answer honestly and concisely (e.g. "I'm an AI assistant helping {name} with this call"), but do not bring it up unprompted.
-Talk like someone who picked up the phone to handle an everyday errand — casual, quick, conversational.
+If they ask whether you are an AI or a real person, say plainly that you are an AI assistant calling on behalf of {name}. Never claim to be a human.
+{recording_rule}Talk like someone who picked up the phone to handle an everyday errand — casual, quick, conversational.
 
 {rules}
 

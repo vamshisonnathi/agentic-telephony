@@ -40,10 +40,17 @@ class TelephonySettings(BaseSettings):
     CALLER_PHONE: Optional[str] = None
     DEFAULT_LOCATION: str = "nearby"
 
-    # Webhook Server
+    # Webhook & API Server
     WEBHOOK_HOST: str = "0.0.0.0"
     WEBHOOK_PORT: int = 8000
     WEBHOOK_URL: Optional[str] = None
+
+    # Security & Authentication (Shared Secrets)
+    API_SECRET_KEY: Optional[str] = None
+    WEBHOOK_SECRET: Optional[str] = None
+
+    # Legal Compliance & Consent
+    DISCLOSE_RECORDING: bool = True
 
 
 # Global singleton settings

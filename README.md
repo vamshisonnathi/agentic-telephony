@@ -72,7 +72,7 @@ pip install -r requirements.txt
 
 ### 2. Configure environment
 
-Copy `.env.example` to `.env` and configure your API key:
+Copy `.env.example` to `.env` and configure your credentials:
 
 ```bash
 cp .env.example .env
@@ -90,6 +90,13 @@ VAPI_PHONE_NUMBER_ID=your_vapi_phone_number_id_here
 CALLER_NAME=Alex
 CALLER_PHONE=+15551234567
 DEFAULT_LOCATION=Dallas, TX
+
+# Security
+API_SECRET_KEY=your_secret_api_key_here
+WEBHOOK_SECRET=your_shared_webhook_secret_here
+
+# Legal compliance (two-party / all-party consent notice)
+DISCLOSE_RECORDING=true
 ```
 
 ### 3. Place an outbound call
@@ -143,6 +150,16 @@ Set the public URL in your Vapi or Retell dashboard as your Webhook URL:
 
 ---
 
+## Security and authentication
+
+Exposing your webhook server to the public internet without credentials exposes billable call-dispatch triggers and private transcript data. Agentic Telephony supports shared-secret authorization across both REST endpoints and webhook listeners:
+
+- REST API security: Set `API_SECRET_KEY` in your `.env`. When configured, requests to `/api/*` must supply either an `X-API-Key: <key>` header or `Authorization: Bearer <key>`. Requests without a valid key receive a `401 Unauthorized`.
+- Webhook signature and secret verification: Set `WEBHOOK_SECRET` in `.env` and configure the identical secret in your Vapi or Retell dashboard. Inbound webhook deliveries to `/webhook/vapi` (`x-vapi-secret`) or `/webhook/retell` (`x-retell-secret`) are validated before payloads are ingested into the state tracker.
+- CORS configuration: Permissive origins (`*`) disable credentials to prevent browser security exceptions and credential leakage.
+
+---
+
 ## Multi-agent integration
 
 Pre-built tools (`PlaceOutboundCallTool`, `CheckCallStatusTool`, `EndCallTool`) can be passed directly to CrewAI agents, LangChain tool callers, or LangGraph graphs:
@@ -170,6 +187,16 @@ phone_agent = Agent(
 
 - Hold silence timeout: When placed on hold in total silence for longer than 25 to 30 seconds, carrier silence detection or provider timeouts can trigger an accidental hangup or an unprompted retry prompt. Handling silent holds reliably without background hold music detection remains an open challenge.
 - Live operator handoff: There is currently no mid-call SIP transfer bridge or warm handoff mechanism to transfer an in-progress call to a human operator when negotiation fails or human intervention is required.
+
+---
+
+## Acceptable use and legal compliance
+
+This framework dials real-world PSTN telephone numbers and interacts with human beings. Maintainers and deployers are responsible for complying with federal, state, and international telephony laws:
+
+- FCC & TCPA regulations: In February 2024, the FCC issued a declaratory ruling confirming that AI-generated voices in outbound telephone calls are considered "artificial voices" under the Telephone Consumer Protection Act (TCPA). Unsolicited automated calls or marketing robocalls to mobile devices without prior express written consent carry statutory civil damages ranging from $500 to $1,500 per violation. This library is intended exclusively for consented, user-initiated transactional inquiries (such as verifying merchant hours, inventory checks, or customer-directed appointments).
+- AI disclosure and transparency: Under California SB 1001 and emerging state statutes, automated systems communicating with consumers must disclose their artificial nature when requested. The system prompts in `agentic_telephony/protocol.py` explicitly instruct the model to identify itself honestly as an AI assistant on behalf of the user when asked and strictly prohibit claiming to be a human.
+- All-party call recording consent: In the United States, roughly a dozen jurisdictions (including California, Florida, Illinois, Pennsylvania, Washington, Massachusetts, and Michigan) require the consent of all parties on a call before recording. Because voice telephony platforms record audio by default, `agentic-telephony` includes a configurable first-turn disclosure (`DISCLOSE_RECORDING=true` by default) instructing the agent to state: *"Quick heads up, this call is recorded."* before proceeding. If you disable this flag, ensure you operate exclusively within one-party consent jurisdictions or implement equivalent disclosures.
 
 ---
 

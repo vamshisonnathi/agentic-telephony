@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "agentic-telephony"
 version = "1.0.0"
 authors = [
-  { name = "Agentic Telephony Contributors" },
+  { name = "Vamshi Krishna Sonnathi" },
 ]
 description = "Autonomous Human-like AI Phone Calling & Receiving Agent with the 4-Pillar Human Transaction Protocol (Vapi & Retell AI)"
 readme = "README.md"
