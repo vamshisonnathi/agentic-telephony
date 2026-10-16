@@ -1,0 +1,15 @@
+# Core Telephony & API Client
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+requests>=2.31.0
+python-dotenv>=1.0.1
+rich>=13.7.1
+
+# Webhook Server & Inbound Calling
+fastapi>=0.110.0
+uvicorn>=0.28.0
+
+# Optional Multi-Agent Integrations
+# crewai>=0.80.0
+# crewai-tools>=0.14.0
+# langchain-core>=0.3.0
