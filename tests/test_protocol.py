@@ -83,6 +83,18 @@ class TestProtocolAndIdentity(unittest.TestCase):
         self.assertIn("Never claim to be a human", prompt)
         self.assertNotIn("Quick heads up, this call is recorded", prompt)
 
+    def test_adaptive_business_verification(self):
+        prompt = build_mission_call_prompt(
+            target_name="Annapurna Events",
+            objective="Book 2 tables",
+            spoken_brief="Ask for 2 tables on Saturday",
+            category="general_inquiry",
+            caller_name="Vamshi",
+        )
+        self.assertIn("Adaptive Callee Verification", prompt)
+        self.assertIn("Hi, is this Annapurna Events?", prompt)
+        self.assertIn("Target Business: Annapurna Events", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

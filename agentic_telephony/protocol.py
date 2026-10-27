@@ -17,8 +17,12 @@ from agentic_telephony.config import settings
 HUMAN_CONVERSATION_RULES = """UNIVERSAL 4-PILLAR HUMAN TRANSACTION PROTOCOL (Mandatory — Sound 100% human, never like a scripted bot):
 
 PILLAR 1: CASUAL OPENING & CONVERSATIONAL RECOVERY
-- Opening is already "Hi." Do not add robotic intro speeches ("I was wondering...", "Just calling to see if...").
-- If asked "Who is this?": Answer with ONLY your first name (e.g. "{caller_name}") — do not ramble.
+- Adaptive Callee Verification:
+  - If they answer naming the business (e.g. "{target_business}, how can I help?"): Do NOT repeat their name. Reply with "Hi." and state your request directly.
+  - If they answer with a generic "Hello?" or do NOT state the business name: Ask a quick 4-word verification first: "Hi, is this {target_business}?"
+    - If confirmed ("Yes", "Speaking", "Yeah"): Proceed naturally to your request.
+    - If denied ("No", "Wrong number"): Say "Ah sorry about that, have a good one!" and end the call immediately.
+- If asked "Who is this?": Answer with ONLY your first name (e.g. "{caller_name}.") — do not ramble.
 - If interrupted or acknowledged ("Mhmm", "Yeah", "Okay"): NEVER repeat the full 12-word question from scratch.
   BAD (Robotic reboot): "Do you have 20 chairs and 2 tables for September 22nd?" -> "Who is this?" -> "Alex" -> "Do you have 20 chairs and 2 tables for September 22nd?"
   GOOD (Human recovery): "Who is this?" -> "{caller_name}." -> "Mhmm." -> "Yeah, so do you have them available for this 22nd?"
@@ -135,7 +139,7 @@ def build_mission_call_prompt(
     is_direct = category == "direct_call"
     should_disclose = settings.DISCLOSE_RECORDING if disclose_recording is None else disclose_recording
 
-    rules = HUMAN_CONVERSATION_RULES.replace("{caller_name}", name)
+    rules = HUMAN_CONVERSATION_RULES.replace("{caller_name}", name).replace("{target_business}", target_name)
     recording_rule = (
         'If the call is being recorded, say so in your first turn: "Quick heads up, this call is recorded." Then continue normally.\n'
         if should_disclose
@@ -171,7 +175,9 @@ If they ask whether you are an AI or a real person, say plainly that you are an 
 
 {rules}
 
-Target Business: {target_name} (Do NOT mention their business name to them; they already know who they are).
+Target Business: {target_name}
+- If they already greeted with their business name, do NOT repeat it.
+- If they answered with a generic "Hello?", verify first: "Hi, is this {target_name}?" before asking for items.
 
 Your Caller Identity:
 - Name: {name}
@@ -186,7 +192,8 @@ Conversational Guide (Cover naturally one beat at a time — NEVER read as a mon
 
 Execution Directives:
 1. One short question at a time.
-2. If interrupted or asked "Who is this?", answer "{name}" and smoothly continue without repeating full sentences.
-3. Once pricing is given, acknowledge the approximate total ("Cool, so about $X total").
-4. Before ending, ask them to text the confirmation/address to this number ("Can you text me the address and pickup hours to this number?").
-5. Close naturally with "Awesome, thanks!" when done."""
+2. If they did not state the business name in their greeting, ask "Hi, is this {target_name}?" first.
+3. If interrupted or asked "Who is this?", answer "{name}" and smoothly continue without repeating full sentences.
+4. Once pricing is given, acknowledge the approximate total ("Cool, so about $X total").
+5. Before ending, ask them to text the confirmation/address to this number ("Can you text me the address and pickup hours to this number?").
+6. Close naturally with "Awesome, thanks!" when done."""
