@@ -85,7 +85,7 @@ class VapiProvider(BaseTelephonyProvider):
         if self.assistant_id:
             payload["assistantId"] = self.assistant_id
             payload["assistantOverrides"] = {
-                "firstMessage": "Hi.",
+                "firstMessageMode": "assistant-waits-for-user",
                 "model": {
                     "provider": "openai",
                     "model": self.llm_model,
@@ -102,7 +102,7 @@ class VapiProvider(BaseTelephonyProvider):
         else:
             # Full inline assistant definition
             inline_assistant: Dict[str, Any] = {
-                "firstMessage": "Hi.",
+                "firstMessageMode": "assistant-waits-for-user",
                 "model": {
                     "provider": "openai",
                     "model": self.llm_model,
