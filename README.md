@@ -10,7 +10,21 @@ Most voice agent demos fail the moment they hit an actual phone line. A recipien
 Agentic Telephony wraps voice telephony providers with conversation protocols designed for real phone interactions: recovery from interruptions, pronoun tracking, quick price sanity checks, and logistical closure.
 
 
-https://www.linkedin.com/pulse/i-built-ai-phone-agent-voice-never-what-made-sound-fake-sonnathi-xfldc
+## Background
+
+The protocol came out of reading call transcripts instead of listening to recordings. In text the failure was obvious:
+
+```
+Agent:  Hi. Do you have 20 folding chairs for September 22nd?
+Vendor: Who is this?
+Agent:  Alex.
+Vendor: Mhmm.
+Agent:  Hi. Do you have 20 folding chairs for September 22nd?
+```
+
+Transcription was accurate, latency was within budget, and the voice was fine. The agent restarted its question after being interrupted, which no human does.
+
+Three more failures like that became the four pillars below. Full write-up, including why describing a rule abstractly in the system prompt did nothing and pasting the model's own failing transcript in as a labeled bad example fixed it immediately: [I built an AI phone agent. The voice was never what made it sound fake.](https://www.linkedin.com/pulse/i-built-ai-phone-agent-voice-never-what-made-sound-fake-sonnathi-xfldc)
 
 ---
 
