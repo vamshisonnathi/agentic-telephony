@@ -9,9 +9,10 @@ Most voice agent demos fail the moment they hit an actual phone line. A recipien
 
 Agentic Telephony wraps voice telephony providers with conversation protocols designed for real phone interactions: recovery from interruptions, pronoun tracking, quick price sanity checks, and logistical closure.
 
----
 
 https://www.linkedin.com/pulse/i-built-ai-phone-agent-voice-never-what-made-sound-fake-sonnathi-xfldc
+
+---
 
 ## Core design
 
