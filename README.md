@@ -11,6 +11,8 @@ Agentic Telephony wraps voice telephony providers with conversation protocols de
 
 ---
 
+https://www.linkedin.com/pulse/i-built-ai-phone-agent-voice-never-what-made-sound-fake-sonnathi-xfldc
+
 ## Core design
 
 - Pluggable provider architecture with unified interfaces for Vapi and Retell AI (`TELEPHONY_PROVIDER=vapi` or `retell`).
